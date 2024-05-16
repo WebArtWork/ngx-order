@@ -1,0 +1,24 @@
+ <wselect
+	(modelChange)="setStore($event)"
+	placeholder="Select store"
+	*ngIf="stores.length"
+	[clearable]="true"
+	[items]="stores"
+	[select]="store"
+	style="padding-bottom: 10px;"
+></wselect>
+
+<wtable
+	title="Orders"
+	[columns]="columns"
+	[config]="config"
+	[rows]="orders"
+>
+	<ng-template cell="enabled" let-element>
+		<winput
+			(wChange)="element.enabled = $event; update(element)"
+			[value]="element.enabled"
+			type="checkbox"
+		></winput>
+	</ng-template>
+</wtable>
