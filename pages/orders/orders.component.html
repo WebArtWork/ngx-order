@@ -1,24 +1,30 @@
- <wselect
-	(modelChange)="setStore($event)"
-	placeholder="Select store"
-	*ngIf="stores.length"
-	[clearable]="true"
-	[items]="stores"
-	[select]="store"
-	style="padding-bottom: 10px;"
-></wselect>
+<wselect (modelChange)="setStore($event)" placeholder="Select store" *ngIf="stores.length" [clearable]="true"
+	[items]="stores" [select]="store" style="padding-bottom: 10px;"></wselect>
 
-<wtable
-	title="Orders"
-	[columns]="columns"
-	[config]="config"
-	[rows]="orders"
->
-	<ng-template cell="enabled" let-element>
-		<winput
-			(wChange)="element.enabled = $event; update(element)"
-			[value]="element.enabled"
-			type="checkbox"
-		></winput>
+<wtable title="Orders" [columns]="columns" [config]="config" [rows]="_os.orders">
+	<ng-template cell="date" let-element>
+		{{element._id | mongodate | date: 'M/d/yy, h:mm a'}}
 	</ng-template>
-</wtable>
+	<ng-template cell="products" let-element>
+		<div *ngFor="let product of element.products">
+			{{product.product.name}} {{product.product.price}} x {{product.quantity}} шт
+		</div>
+	</ng-template>
+	<ng-template cell="status" let-element>
+		<wselect [select]="element.status" (modelChange)="setStatus(element, $event)"
+			[items]="['new', 'ordered', 'preparing', 'sent', 'completed']"></wselect>
+	</ng-template>
+	<ng-template cell="information" let-element>
+		<ng-container *ngIf="element.delivery">
+			<div>Email: {{element.delivery.email}}</div>
+			<div>Name: {{element.delivery.name}}</div>
+			<div>City: {{element.delivery.city}}</div>
+			<div>Address: {{element.delivery.address}}</div>
+			<div>Phone: {{element.delivery.phone}}</div>
+		</ng-container>
+	</ng-template>
+	<ng-template cell="price" let-element>
+		<div *ngIf="element?.discount">Discount: -{{element?.discount.amount}}%</div>
+		<div>Total: {{getProductsTotal(element) - (getProductsTotal(element) * (element?.discount?.amount || 0) / 100)}} грн</div>
+	</ng-template>
+</wtable> 

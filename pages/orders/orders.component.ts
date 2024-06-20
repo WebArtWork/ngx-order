@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormService } from 'src/app/modules/form/form.service';
-import { OrderService, Order } from '../../services/order.service';
+import { OrderService, Order } from 'src/app/modules/order/services/order.service';
 import {
 	AlertService,
 	CoreService,
@@ -16,7 +16,7 @@ import { StoreService, Store } from 'src/app/modules/store/services/store.servic
 	styleUrls: ['./orders.component.scss']
 })
 export class OrdersComponent {
-	columns = ['name', 'description'];
+	columns = ['date', 'products', 'information', 'price', 'status'];
 
 	form: FormInterface = this._form.getForm('orders', {
 		formId: 'orders',
@@ -96,25 +96,26 @@ export class OrdersComponent {
 					this._core.copy(updated, doc);
 					this._os.save(doc);
 				});
-		},
-		delete: (doc: Order) => {
-			this._alert.question({
-				text: this._translate.translate(
-					'Common.Are you sure you want to delete this cservice?'
-				),
-				buttons: [
-					{
-						text: this._translate.translate('Common.No')
-					},
-					{
-						text: this._translate.translate('Common.Yes'),
-						callback: () => {
-							this._os.delete(doc);
-						}
-					}
-				]
-			});
 		}
+		// ,
+		// delete: (doc: Order) => {
+		// 	this._alert.question({
+		// 		text: this._translate.translate(
+		// 			'Common.Are you sure you want to delete this cservice?'
+		// 		),
+		// 		buttons: [
+		// 			{
+		// 				text: this._translate.translate('Common.No')
+		// 			},
+		// 			{
+		// 				text: this._translate.translate('Common.Yes'),
+		// 				callback: () => {
+		// 					this._os.delete(doc);
+		// 				}
+		// 			}
+		// 		]
+		// 	});
+		// }
 	};
 
 	orders: Order[] = [];
@@ -132,6 +133,12 @@ export class OrdersComponent {
 		}
 	}
 
+	setStatus(order: Order, status:string) {
+	 	order.status = status;
+		this.update(order);
+		
+	}
+
 	update(order: Order) {
 		this._os.update(order);
 	}
@@ -147,7 +154,7 @@ export class OrdersComponent {
 	}
 
 	constructor(
-		private _os: OrderService,
+		public _os: OrderService,
 		private _translate: TranslateService,
 		private _alert: AlertService,
 		private _form: FormService,
@@ -158,5 +165,9 @@ export class OrdersComponent {
 	) {
 		this._store.get('store', this.setStore.bind(this));
 		this._mongo.on('order', this.setOrders.bind(this));
+	}
+
+	getProductsTotal(order: Order): number {
+		return order.products.reduce((accumulator, product) => accumulator + product.product.price, 0);
 	}
 }
