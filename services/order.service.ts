@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Product } from 'src/app/core/services/product.service';
 import { MongoService, AlertService } from 'wacom';
+import { Product } from '../../product/services/product.service';
 
 export interface Order {
 	_id: string;
